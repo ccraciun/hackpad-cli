@@ -14,7 +14,6 @@ setup(
         install_requires=[
             "docopt",
             "ipython",
-            "oauthlib",
             "requests-oauthlib",
             ]
         )
