@@ -1,7 +1,10 @@
 .PHONY: test clean
 
+repl:
+	. env/bin/activate; ipython
+
 clean:
-	python3 setup.py clean
+	python setup.py clean
 	find hackpad-cli -type f -name "*.pyc" -exec rm {} \;
 
 env: env/bin/activate
