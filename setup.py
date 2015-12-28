@@ -9,7 +9,7 @@ setup(
         description="",
         url="",
         packages=find_packages(exclude=["tests"]),
-        scripts=["hackpad-cli/hpad.py"],
+        scripts=["hackpad_cli/hpad.py"],
         test_suite="nose.collector",
         install_requires=[
             "docopt",
