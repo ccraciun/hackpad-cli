@@ -29,6 +29,19 @@ class HackpadSession(object):
         req_url = "%s/pads/all" % self.api_endpoint
         return self.get(req_url)
 
+    def pad_search(self, query, start=None, limit=None):
+        req_url = "%s/search" % self.api_endpoint
+        req_params = {'q': query}
+        if start:
+            req_params['start'] = start
+        if limit:
+            req_params['limit'] = limit
+        return self.get(req_url, params=req_params)
+
+    def pad_edited_since(self, timestamp):
+        req_url = "%s/edited-since/%s" % (self.api_endpoint, str(timestamp))
+        return self.get(req_url)
+
     def pad_create(self, data, data_format='md'):
         req_url = "%s/pad/create" % self.api_endpoint
         req_headers = {CONTENT_TYPE_HEADER: CONTENT_TYPE_MAP[data_format]}
@@ -62,3 +75,6 @@ class HackpadSession(object):
         req_params = {setting: value}
         return self.post(req_url, params=req_params)
 
+    def pad_revoke_access(self, pad_id, user):
+        req_url = "%s/pad/%s/revoke-access/%s" % (self.api_endpoint, pad_id, user)
+        return self.post(req_ulr)

@@ -3,13 +3,15 @@ Hackpad API command line client.
 
 Usage:
     hpad.py [options] pad list
+    hpad.py [options] pad search <query> [--start=<start>] [--limit=<limit>]
     hpad.py [options] pad create [--format=<format>] [--] <file>
     hpad.py [options] pad <pad_id> revisions
     hpad.py [options] pad <pad_id> put [--format=<format>] <file>
     hpad.py [options] pad <pad_id> get [--revision=<revision>] [--format=<format>]
     hpad.py [options] pad <pad_id> revert --revision=<revision>
-    hpad.py [options] pad <pad_id> get_options
-    hpad.py [options] pad <pad_id> set_option <setting> <value>
+    hpad.py [options] pad <pad_id> get-options
+    hpad.py [options] pad <pad_id> set-option <setting> <value>
+    hpad.py [options] pad <pad_id> revoke-access <user>
 
 Options:
     -u URL, --url=URL           Hackpad url [default: https://hackpad.com/]
@@ -18,6 +20,8 @@ Options:
     -c FILE, --config=FILE      Auth file containing url, user key and secret
     --revision=<revision>       Pad revision id [default: latest]
     --format=<format>           Pad format (html|md|native|txt) [default: md]
+    --start=<start>             Offset in search results to start at
+    --limit=<limit>             Number of search results to return
 """
 from hackpad_cli.hackpad import HackpadSession
 
@@ -45,6 +49,11 @@ def main():
             resp = hackpad_session.pad_list()
             pprint.pprint(resp.json())
 
+        if arguments['search']:
+            resp = hackpad_session.pad_search(arguments['<query>'], start=arguments['--start'],
+                                              limit=arguments['--limit'])
+            pprint.pprint(resp.json())
+
         if arguments['create']:
             resp = hackpad_session.pad_create(stream.read(), data_format=arguments['--format'])
             pprint.pprint(resp.json())
@@ -67,13 +76,17 @@ def main():
             resp = hackpad_session.pad_revisions(arguments['<pad_id>'])
             pprint.pprint(resp.json())
 
-        if arguments['get_options']:
+        if arguments['get-options']:
             resp = hackpad_session.pad_get_options(arguments['<pad_id>'])
             pprint.pprint(resp.json())
 
-        if arguments['set_option']:
+        if arguments['set-option']:
             resp = hackpad_session.pad_set_option(arguments['<pad_id>'], arguments['<setting>'],
                                                   arguments['<value>'])
+            pprint.pprint(resp.json())
+
+        if arguments['revoke-access']:
+            resp = hackpad_session.pad_revoke_access(arguments['<pad_id>'], arguments['<user>'])
             pprint.pprint(resp.json())
 
 
