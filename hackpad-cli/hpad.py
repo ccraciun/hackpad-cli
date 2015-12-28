@@ -7,6 +7,9 @@ Usage:
     hpad.py [options] pad <pad_id> revisions
     hpad.py [options] pad <pad_id> put [--format=<format>] <file>
     hpad.py [options] pad <pad_id> get [--revision=<revision>] [--format=<format>]
+    hpad.py [options] pad <pad_id> revert --revision=<revision>
+    hpad.py [options] pad <pad_id> get_options
+    hpad.py [options] pad <pad_id> set_option <setting> <value>
 
 Options:
     -u URL, --url=URL           Hackpad url [default: https://hackpad.com/]
@@ -36,7 +39,6 @@ def main():
     arguments = docopt(__doc__, version='hpad.py 0.1')
     if arguments['--config']:
         arguments.update(json.load(open(arguments['--config'])))
-    pprint.pprint(arguments)
 
     api_endpoint = arguments['--url'] + API_PATH
 
@@ -46,6 +48,7 @@ def main():
         if arguments['list']:
             print(api_endpoint + 'pads/all')
             print(oauth_session.get(api_endpoint + 'pads/all').json())
+
         if arguments['create']:
             req_url = api_endpoint + 'pad/create'
             if arguments['<file>'] == '-':
@@ -55,7 +58,9 @@ def main():
             req_headers = {CONTENT_TYPE_HEADER: CONTENT_TYPE_MAP[arguments['--format']]}
             print(req_url)
             print(req_headers)
-            #pprint.pprint(oauth_session.put(req_url, f, headers=req_headers))
+            resp = oauth_session.post(req_url, f.read(), headers=req_headers)
+            pprint.pprint(resp.json())
+
         if arguments['get']:
             req_url = api_endpoint + 'pad/' + arguments['<pad_id>'] + '/content/'
             if arguments['--revision']:
@@ -63,7 +68,8 @@ def main():
             if arguments['--format']:
                 req_url += '.' + arguments['--format']
             print(req_url)
-            print(oauth_session.get(req_url).content)
+            pprint.pprint(oauth_session.get(req_url).content)
+
         if arguments['put']:
             req_url = api_endpoint + 'pad/' + arguments['<pad_id>'] + '/content'
             # TODO: Pull file setup out of here, merge with create above.
@@ -74,11 +80,31 @@ def main():
             req_headers = {CONTENT_TYPE_HEADER: CONTENT_TYPE_MAP[arguments['--format']]}
             print(req_url)
             print(req_headers)
-            #pprint.pprint(oauth_session.put(req_url, f, headers=req_headers))
+            resp = oauth_session.post(req_url, f.read(), headers=req_headers)
+            pprint.pprint(resp.json())
+
+        if arguments['revert']:
+            req_url = api_endpoint + 'pad/' + arguments['<pad_id>'] + '/revert-to' + arguments['--revision']
+            print(req_url)
+            resp = oauth_session.post(req_url).json()
+            pprint.pprint(resp.json())
+
         if arguments['revisions']:
             req_url = api_endpoint + 'pad/' + arguments['<pad_id>'] + '/revisions'
             print(req_url)
             pprint.pprint(oauth_session.get(req_url).json())
+
+        if arguments['get_options']:
+            req_url = api_endpoint + 'pad/' + arguments['<pad_id>'] + '/options'
+            print(req_url)
+            pprint.pprint(oauth_session.get(req_url).json())
+
+        if arguments['set_option']:
+            req_url = api_endpoint + 'pad/' + arguments['<pad_id>'] + '/options'
+            req_params = {arguments['<setting>']: arguments['<value>']}
+            print(req_url)
+            print(req_params)
+            pprint.pprint(oauth_session.post(req_url, params=req_params).json())
 
 
 if __name__ == '__main__':
