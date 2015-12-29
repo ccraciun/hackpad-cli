@@ -21,6 +21,10 @@ def parse_url(url):
     return urlparse.urlparse(url)
 
 
+def padid_from_path(path):
+    return path.split('-')[-1]
+
+
 class HackpadSession(object):
     def __init__(self, key, secret, url='https://hackpad.com'):
         self.url = url
