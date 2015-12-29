@@ -14,7 +14,7 @@ Usage:
     hpad.py [options] pad <pad_id> revoke-access <user>
 
 Options:
-    -u URL, --url=URL           Hackpad url [default: https://hackpad.com/]
+    -u URL, --url=URL           Hackpad url
     -k KEY, --key=KEY           User key
     -s SECRET, --secret=SECRET  User secret
     -c FILE, --config=FILE      Auth file containing url, user key and secret
@@ -32,8 +32,13 @@ def main():
 
     from docopt import docopt
     arguments = docopt(__doc__, version='hpad.py 0.1')
+
     if arguments['--config']:
-        arguments.update(json.load(open(arguments['--config'])))
+        config = json.load(open(arguments['--config']))
+        if arguments['--url']:
+            arguments.update(config[arguments['--url']])
+        else:
+            arguments.update(config.popitem()[1])
 
     hackpad_session = HackpadSession(arguments['--key'], arguments['--secret'],
                                      url=arguments['--url'])
