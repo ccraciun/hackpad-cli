@@ -11,18 +11,27 @@ CONTENT_TYPE_MAP = {
         }
 
 
+def parse_url(url):
+    if '//' not in url:
+        url = '//' + url
+    try:
+        import urlparse
+    except ImportError:
+        import urllib.parse as urlparse
+    return urlparse.urlparse(url)
+
+
 class HackpadSession(object):
     def __init__(self, key, secret, url='https://hackpad.com'):
-        self.url = url.strip('/')
+        self.url = url
+        self.parsed = parse_url(url)
         self.oauth_session = OAuth1Session(key, secret)
-        self.api_endpoint = url + API_PATH
+        self.api_endpoint = "https://%s/%s" % (self.parsed.netloc, API_PATH)
 
     def get(self, url, *args, **kwargs):
-        print('GET', url, args, kwargs)
         return self.oauth_session.get(url, *args, **kwargs)
 
     def post(self, url, *args, **kwargs):
-        print('POST', url, args, kwargs)
         return self.oauth_session.post(url, *args, **kwargs)
 
     def pad_list(self):
@@ -39,7 +48,7 @@ class HackpadSession(object):
         return self.get(req_url, params=req_params)
 
     def pad_edited_since(self, timestamp):
-        req_url = "%s/edited-since/%s" % (self.api_endpoint, str(timestamp))
+        req_url = "%s/edited-since/%d" % (self.api_endpoint, timestamp)
         return self.get(req_url)
 
     def pad_create(self, data, data_format='md'):
