@@ -17,7 +17,7 @@ Options:
     -u URL, --url=URL           Hackpad url
     -k KEY, --key=KEY           User key
     -s SECRET, --secret=SECRET  User secret
-    -c FILE, --config=FILE      Auth file containing url, user key and secret
+    -c FILE, --config=FILE      Auth file containing url, user key and secret [default: ~/.hackpad.cred.json]
     --revision=<revision>       Pad revision id [default: latest]
     --format=<format>           Pad format (html|md|native|txt) [default: md]
     --start=<start>             Offset in search results to start at
@@ -30,18 +30,28 @@ def main():
     import json
     import pprint
 
+    from os.path import expanduser
     from docopt import docopt
     arguments = docopt(__doc__, version='hpad.py 0.1')
 
+    session_config = {}
     if arguments['--config']:
-        config = json.load(open(arguments['--config']))
+        config_path = expanduser(arguments['--config'])
+        config = json.load(open(config_path))
         if arguments['--url']:
-            arguments.update(config[arguments['--url']])
+            session_config = config[arguments['--url']]
         else:
-            arguments.update(config.popitem()[1])
+            session_config = next(filter(lambda x: x.get('default'), config.values()))
 
-    hackpad_session = HackpadSession(arguments['--key'], arguments['--secret'],
-                                     url=arguments['--url'])
+    if arguments['--key']:
+        session_config['key'] = arguments['--key']
+    if arguments['--secret']:
+        session_config['secret'] = arguments['--secret']
+    if arguments['--url']:
+        session_config['url'] = arguments['--url']
+
+    hackpad_session = HackpadSession(session_config['key'], session_config['secret'],
+                                     url=session_config['url'])
 
     if arguments['pad'] and (arguments['create'] or arguments['put']):
         if arguments['<file>'] == '-':
