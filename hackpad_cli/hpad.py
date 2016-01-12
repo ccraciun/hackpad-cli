@@ -22,6 +22,7 @@ Options:
     --format=<format>           Pad format (html|md|native|txt) [default: md]
     --start=<start>             Offset in search results to start at
     --limit=<limit>             Number of search results to return
+    -D --debug                  Print debugging info.
 """
 from hackpad_cli.hackpad import HackpadSession
 
@@ -51,7 +52,7 @@ def main():
         session_config['url'] = arguments['--url']
 
     hackpad_session = HackpadSession(session_config['key'], session_config['secret'],
-                                     url=session_config['url'])
+                                     url=session_config['url'], debug=arguments['--debug'])
 
     if arguments['pad'] and (arguments['create'] or arguments['put']):
         if arguments['<file>'] == '-':
