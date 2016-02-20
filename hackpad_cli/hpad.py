@@ -30,6 +30,7 @@ from hackpad_cli.hackpad import HackpadSession
 def main():
     import json
     import pprint
+    import sys
 
     from os.path import expanduser
     from docopt import docopt
